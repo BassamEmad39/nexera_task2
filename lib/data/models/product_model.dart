@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-class Product extends Equatable {
+class ProductModel {
   final int id;
   final String title;
   final String description;
@@ -13,7 +11,7 @@ class Product extends Equatable {
   final String thumbnail;
   final List<String> images;
 
-  const Product({
+  ProductModel({
     required this.id,
     required this.title,
     required this.description,
@@ -27,38 +25,43 @@ class Product extends Equatable {
     required this.images,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['id'] ?? 0,
-      title: json['title']?.toString() ?? 'No Title',
-      description: json['description']?.toString() ?? 'No Description',
-      price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      discountPercentage: (json['discountPercentage'] as num?)?.toDouble() ?? 0.0,
-      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      stock: json['stock'] ?? 0,
-      brand: json['brand']?.toString() ?? 'No Brand',
-      category: json['category']?.toString() ?? 'No Category',
-      thumbnail: json['thumbnail']?.toString() ?? '',
-      images: (json['images'] as List<dynamic>?)?.map((image) => image.toString()).toList() ?? [],
-    );
-  }
-
   double get discountedPrice {
     return price - (price * discountPercentage / 100);
   }
 
-  @override
-  List<Object?> get props => [
-        id,
-        title,
-        description,
-        price,
-        discountPercentage,
-        rating,
-        stock,
-        brand,
-        category,
-        thumbnail,
-        images,
-      ];
+  bool get hasDiscount => discountPercentage > 0;
+
+  bool get isOutOfStock => stock <= 0;
+
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
+      id: json['id'] ?? 0,
+      title: json['title']?.toString() ?? 'No Title',
+      description: json['description']?.toString() ?? 'No Description',
+      price: (json['price'] ?? 0.0).toDouble(),
+      discountPercentage: (json['discountPercentage'] ?? 0.0).toDouble(),
+      rating: (json['rating'] ?? 0.0).toDouble(),
+      stock: json['stock'] ?? 0,
+      brand: json['brand']?.toString() ?? 'No Brand',
+      category: json['category']?.toString() ?? 'No Category',
+      thumbnail: json['thumbnail']?.toString() ?? '',
+      images: List<String>.from(json['images']?.map((x) => x.toString()) ?? []),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'price': price,
+      'discountPercentage': discountPercentage,
+      'rating': rating,
+      'stock': stock,
+      'brand': brand,
+      'category': category,
+      'thumbnail': thumbnail,
+      'images': images,
+    };
+  }
 }
